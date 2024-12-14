@@ -14,10 +14,18 @@ import static millenniumambiguity.nomoresingleplayerlatency.Knockback.estimateKn
 
 public class MouseButtonLeftPress {
 
-    public static boolean mouseButtonLeftPress() {
+    public static boolean mouseButtonLeftPressFromMixin() {
+        return mouseButtonLeftPressBase(Minecraft.getInstance());
+    }
 
+    public static boolean mouseButtonLeftPress() {
         final Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.screen != null) return false;
+        return mouseButtonLeftPressBase(minecraft);
+    }
+
+    private static boolean mouseButtonLeftPressBase(final Minecraft minecraft) {
+
         if (minecraft.level == null || minecraft.player == null) return false;
 
         HitResult hitResult = minecraft.hitResult;
@@ -38,11 +46,11 @@ public class MouseButtonLeftPress {
                 if (localTarget.getDeltaMovement().y < 0 && localTarget.onGround())
                     localTarget.setDeltaMovement(localTarget.getDeltaMovement().multiply(1, -1, 1));
 
-                final var localPos1 = localTarget.position().add(localTarget.getDeltaMovement().multiply(.5, 1, .5));
-                localTarget.setPos(localPos1);
+                final var localPos1 = localTarget.getDeltaMovement().multiply(.5, 1, .5);
+                localTarget.move(MoverType.SELF, localPos1);
 
                 // frame2 knockback.
-                final var localPos2 = localPos1.add(localTarget.getDeltaMovement().multiply(.5, 1, .5));
+                final var localPos2 = localTarget.position().add(localPos1.add(localTarget.getDeltaMovement().multiply(.5, 1, .5)));
                 localTarget.xo = localPos2.x;
                 localTarget.yo = localPos2.y;
                 localTarget.zo = localPos2.z;
@@ -76,11 +84,11 @@ public class MouseButtonLeftPress {
 
             // Instant knockback.
             localTarget.setOldPosAndRot();
-            final var pos1 = localTarget.position().add(localTarget.getDeltaMovement().multiply(.5, 1, .5));
-            localTarget.setPos(pos1);
+            final var pos1 = localTarget.getDeltaMovement().multiply(.5, 1, .5);
+            localTarget.move(MoverType.SELF, pos1);
 
             // frame2 knockback.
-            final var pos2 = pos1.add(localTarget.getDeltaMovement());
+            final var pos2 = localTarget.position().add(pos1).add(localTarget.getDeltaMovement());
             localTarget.xo = pos2.x;
             localTarget.yo = pos2.y;
             localTarget.zo = pos2.z;
